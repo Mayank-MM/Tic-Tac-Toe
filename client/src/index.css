@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+/* ============================================
+   Global Styles & CSS Custom Properties
+   Premium dark theme for Tic-Tac-Toe
+   ============================================ */
+
+:root {
+  /* Color Palette */
+  --color-bg-primary: #0a0a1a;
+  --color-bg-secondary: #111128;
+  --color-bg-card: rgba(255, 255, 255, 0.04);
+  --color-bg-card-hover: rgba(255, 255, 255, 0.07);
+  --color-text-primary: #e8e8f0;
+  --color-text-secondary: #9898b0;
+  --color-accent: #7c5cfc;
+  --color-accent-glow: rgba(124, 92, 252, 0.35);
+  --color-success: #34d399;
+  --color-success-glow: rgba(52, 211, 153, 0.3);
+  --color-danger: #f87171;
+  --color-danger-glow: rgba(248, 113, 113, 0.3);
+
+  /* Typography */
+  --font-family: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Spacing */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+}
+
+/* ============================================
+   Reset & Base
+   ============================================ */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Animated gradient background */
+body::before {
+  content: "";
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+      ellipse at 20% 50%,
+      rgba(124, 92, 252, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 80% 20%,
+      rgba(52, 211, 153, 0.06) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 50% 80%,
+      rgba(248, 113, 113, 0.05) 0%,
+      transparent 50%
+    );
+  animation: bgShift 20s ease-in-out infinite alternate;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes bgShift {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(2%, 3%) rotate(3deg);
+  }
+}
+
+/* ============================================
+   Utility: Glassmorphism Card
+   ============================================ */
+.glass-card {
+  background: var(--color-bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  background: var(--color-bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   Utility: Glow Pulse Animation
+   ============================================ */
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 8px var(--glow-color, var(--color-accent-glow));
+  }
+  50% {
+    box-shadow: 0 0 20px var(--glow-color, var(--color-accent-glow)),
+      0 0 40px var(--glow-color, var(--color-accent-glow));
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* ============================================
+   Interactive Background: Symbol Float
+   ============================================ */
+@keyframes symbolFloat {
+  0% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) translateY(0) translateX(0) rotate(0deg) scale(1);
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(-80px) translateX(var(--drift, 0px))
+      rotate(var(--rotation, 0deg)) scale(0.4);
+  }
+}
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
