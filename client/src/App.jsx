@@ -1,25 +1,29 @@
 // ============================================
 // App.jsx — Root Application Component
-// Configures React Router and renders pages
+// Configures React Router, contexts, and pages
 // ============================================
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { RoomProvider } from "./contexts/RoomContext";
 import Home from "./pages/Home";
+import Lobby from "./pages/Lobby";
 import InteractiveBackground from "./components/InteractiveBackground";
 
 /**
- * Root component: wraps the app in BrowserRouter
+ * Root component: wraps the app in BrowserRouter + RoomProvider
  * and defines all route → page mappings.
- * Phase 2 will add: /lobby, /game/:roomId, etc.
  */
 const App = () => {
   return (
     <BrowserRouter>
-      {/* Interactive X/O background — visible on all pages */}
-      <InteractiveBackground />
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
+      <RoomProvider>
+        {/* Interactive X/O background — visible on all pages */}
+        <InteractiveBackground />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/lobby/:roomCode" element={<Lobby />} />
+        </Routes>
+      </RoomProvider>
     </BrowserRouter>
   );
 };
