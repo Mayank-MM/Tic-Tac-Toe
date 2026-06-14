@@ -72,101 +72,104 @@ const Home = () => {
           </div>
         )}
 
-        {/* Create Room Card */}
-        <div className="glass-card p-6 mb-4">
-          <h2 className="text-lg font-semibold text-white mb-3">
-            Start a New Game
-          </h2>
-          <p className="text-sm text-gray-400 mb-4">
-            Create a room and invite a friend with the code.
-          </p>
-          <button
-            id="create-room-btn"
-            onClick={createRoom}
-            disabled={!isConnected || isLoading}
-            className="w-full py-3 px-6 rounded-xl font-semibold text-white text-sm
-                       bg-gradient-to-r from-purple-600 to-fuchsia-600
-                       hover:from-purple-500 hover:to-fuchsia-500
-                       active:scale-[0.98]
-                       disabled:opacity-40 disabled:cursor-not-allowed
-                       transition-all duration-200
-                       shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30"
-          >
-            {isLoading ? (
-              <span className="inline-flex items-center gap-2">
-                <svg
-                  className="animate-spin h-4 w-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Creating...
-              </span>
-            ) : (
-              "Create Room"
-            )}
-          </button>
-        </div>
+        {/* ── Primary CTA: Create Room ──────────────── */}
+        <button
+          id="create-room-btn"
+          onClick={createRoom}
+          disabled={!isConnected || isLoading}
+          className="group w-full py-5 px-6 rounded-2xl font-bold text-white text-lg
+                     bg-gradient-to-r from-purple-600 via-fuchsia-600 to-purple-600
+                     bg-[length:200%_100%] hover:bg-right
+                     active:scale-[0.97]
+                     disabled:opacity-40 disabled:cursor-not-allowed
+                     transition-all duration-300 ease-out
+                     shadow-[0_4px_24px_rgba(124,92,252,0.3)] hover:shadow-[0_6px_32px_rgba(124,92,252,0.5)]
+                     border border-purple-400/20 hover:border-purple-400/40
+                     flex items-center justify-center gap-3"
+        >
+          {isLoading ? (
+            <span className="inline-flex items-center gap-2">
+              <svg
+                className="animate-spin h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              Creating Room...
+            </span>
+          ) : (
+            <>
+              <span className="text-xl group-hover:scale-110 transition-transform duration-200">🎮</span>
+              <span>Create Room</span>
+              <span className="text-purple-300/60 text-sm font-normal ml-1">— Start a match</span>
+            </>
+          )}
+        </button>
 
         {/* Divider */}
-        <div className="flex items-center gap-4 my-4">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-xs uppercase tracking-[0.2em] text-gray-500 font-medium">
-            or
+        <div className="flex items-center gap-4 my-8">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          <span className="text-[11px] uppercase tracking-[0.25em] text-gray-500 font-semibold">
+            or join a friend
           </span>
-          <div className="flex-1 h-px bg-white/10" />
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         </div>
 
-        {/* Join Room Card */}
-        <div className="glass-card p-6">
-          <h2 className="text-lg font-semibold text-white mb-3">
-            Join a Room
-          </h2>
-          <p className="text-sm text-gray-400 mb-4">
-            Enter the 6-character code shared by your friend.
-          </p>
-          <form onSubmit={handleJoinSubmit} className="flex gap-3">
+        {/* ── Secondary CTA: Join Room ─────────────── */}
+        <form
+          onSubmit={handleJoinSubmit}
+          className="glass-card p-5 space-y-3"
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-base">🔗</span>
+            <span className="text-sm font-semibold text-white">
+              Join by Room Code
+            </span>
+          </div>
+          <div className="flex gap-3">
             <input
               id="room-code-input"
               type="text"
               value={joinCode}
               onChange={handleCodeChange}
-              placeholder="ABX72K"
+              placeholder="Enter 6-digit code"
               maxLength={6}
-              className="flex-1 px-4 py-3 rounded-xl text-sm font-mono text-center text-white
-                         tracking-[0.3em] uppercase placeholder-gray-600
-                         bg-white/5 border border-white/10
-                         focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30
-                         transition-all duration-200"
+              className="flex-1 px-4 py-3.5 rounded-xl text-sm font-mono text-center text-white
+                         tracking-[0.25em] uppercase placeholder-gray-500
+                         bg-white/[0.03] border border-white/10
+                         focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.06]
+                         focus:ring-2 focus:ring-emerald-500/20
+                         transition-all duration-200 min-w-0"
             />
             <button
               id="join-room-btn"
               type="submit"
               disabled={!isConnected || isLoading || joinCode.length !== 6}
-              className="px-6 py-3 rounded-xl font-semibold text-white text-sm
+              className="px-7 py-3.5 rounded-xl font-bold text-white text-sm
                          bg-emerald-600 hover:bg-emerald-500
-                         active:scale-[0.98]
-                         disabled:opacity-40 disabled:cursor-not-allowed
+                         active:scale-[0.97]
+                         disabled:opacity-30 disabled:cursor-not-allowed
                          transition-all duration-200
-                         shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
+                         shadow-[0_4px_16px_rgba(52,211,153,0.2)] hover:shadow-[0_4px_24px_rgba(52,211,153,0.35)]
+                         border border-emerald-400/20 hover:border-emerald-400/40"
             >
-              Join
+              Join →
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
 
       {/* Connection Status */}
