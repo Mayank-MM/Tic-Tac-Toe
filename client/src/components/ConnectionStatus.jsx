@@ -3,17 +3,37 @@
 // Displays real-time Socket.IO connection state
 // ============================================
 
+import { useState, useEffect } from "react";
 import useSocket from "../hooks/useSocket";
 
 /**
  * Visual indicator for socket connection status.
  * Shows a pulsing green dot when connected, red when disconnected.
+ * Auto-hides after 3 seconds of stable connection.
  */
 const ConnectionStatus = () => {
   const { isConnected, socketId } = useSocket();
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    let timeout;
+    if (isConnected) {
+      // Auto-hide after 3 seconds of being connected
+      timeout = setTimeout(() => {
+        setIsVisible(false);
+      }, 3000);
+    } else {
+      // Always show immediately if disconnected
+      setIsVisible(true);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [isConnected]);
+
+  if (!isVisible) return null;
 
   return (
-    <div className="glass-card px-5 py-4 inline-flex flex-col gap-2 animate-fade-in-up">
+    <div className="glass-card px-5 py-4 inline-flex flex-col gap-2 animate-fade-in-up transition-opacity duration-500">
       {/* Status Badge */}
       <div className="flex items-center gap-3">
         {/* Pulsing indicator dot */}
