@@ -38,7 +38,7 @@ const Home = () => {
       {/* Hero Section */}
       <div className="text-center max-w-lg animate-fade-in-up">
         {/* Game Icon */}
-        <div className="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/20">
+        <div className="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border border-yellow-500/20">
           <span className="text-4xl" role="img" aria-label="game icon">
             ❌⭕
           </span>
@@ -46,7 +46,7 @@ const Home = () => {
 
         {/* Title */}
         <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-tight">
-          <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
             Multiplayer
           </span>
           <br />
@@ -77,14 +77,14 @@ const Home = () => {
           id="create-room-btn"
           onClick={createRoom}
           disabled={!isConnected || isLoading}
-          className="group w-full py-5 px-6 rounded-2xl font-bold text-white text-lg
-                     bg-gradient-to-r from-purple-600 via-fuchsia-600 to-purple-600
+          className="group w-full py-5 px-6 rounded-2xl font-bold text-black text-lg
+                     bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-400
                      bg-[length:200%_100%] hover:bg-right
                      active:scale-[0.97]
                      disabled:opacity-40 disabled:cursor-not-allowed
                      transition-all duration-300 ease-out
-                     shadow-[0_4px_24px_rgba(124,92,252,0.3)] hover:shadow-[0_6px_32px_rgba(124,92,252,0.5)]
-                     border border-purple-400/20 hover:border-purple-400/40
+                     shadow-[0_4px_24px_rgba(250,204,21,0.3)] hover:shadow-[0_6px_32px_rgba(250,204,21,0.5)]
+                     border border-yellow-400/20 hover:border-yellow-400/40
                      flex items-center justify-center gap-3"
         >
           {isLoading ? (
@@ -114,7 +114,7 @@ const Home = () => {
             <>
               <span className="text-xl group-hover:scale-110 transition-transform duration-200">🎮</span>
               <span>Create Room</span>
-              <span className="text-purple-300/60 text-sm font-normal ml-1">— Start a match</span>
+              <span className="text-black/60 text-sm font-normal ml-1">— Start a match</span>
             </>
           )}
         </button>
@@ -150,21 +150,21 @@ const Home = () => {
               className="flex-1 px-4 py-3.5 rounded-xl text-sm font-mono text-center text-white
                          tracking-[0.25em] uppercase placeholder-gray-500
                          bg-white/[0.03] border border-white/10
-                         focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.06]
-                         focus:ring-2 focus:ring-emerald-500/20
+                         focus:outline-none focus:border-white/50 focus:bg-white/[0.06]
+                         focus:ring-2 focus:ring-white/20
                          transition-all duration-200 min-w-0"
             />
             <button
               id="join-room-btn"
               type="submit"
               disabled={!isConnected || isLoading || joinCode.length !== 6}
-              className="px-7 py-3.5 rounded-xl font-bold text-white text-sm
-                         bg-emerald-600 hover:bg-emerald-500
+              className="px-7 py-3.5 rounded-xl font-bold text-black text-sm
+                         bg-white hover:bg-gray-200
                          active:scale-[0.97]
                          disabled:opacity-30 disabled:cursor-not-allowed
                          transition-all duration-200
-                         shadow-[0_4px_16px_rgba(52,211,153,0.2)] hover:shadow-[0_4px_24px_rgba(52,211,153,0.35)]
-                         border border-emerald-400/20 hover:border-emerald-400/40"
+                         shadow-[0_4px_16px_rgba(255,255,255,0.1)] hover:shadow-[0_4px_24px_rgba(255,255,255,0.2)]
+                         border border-white/20 hover:border-white/40"
             >
               Join →
             </button>

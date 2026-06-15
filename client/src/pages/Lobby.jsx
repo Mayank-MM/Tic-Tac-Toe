@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useRoom } from "../contexts/RoomContext";
 import useSocket from "../hooks/useSocket";
 import ConnectionStatus from "../components/ConnectionStatus";
+import Countdown from "../components/Countdown";
 
 /**
  * Lobby page: Displays the room code, player count,
@@ -15,11 +16,18 @@ import ConnectionStatus from "../components/ConnectionStatus";
  * to clipboard for sharing.
  */
 const Lobby = () => {
-  const { roomCode, playerSymbol, playerCount, roomStatus, leaveRoom } =
+  const { roomCode, playerSymbol, playerCount, roomStatus, isRoomReady, leaveRoom } =
     useRoom();
   const { isConnected } = useSocket();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+
+  // Redirect to game when ready
+  useEffect(() => {
+    if (isRoomReady && roomCode) {
+      navigate(`/room/${roomCode}/game`);
+    }
+  }, [isRoomReady, roomCode, navigate]);
 
   // Redirect to home if no room is active
   useEffect(() => {
@@ -54,10 +62,11 @@ const Lobby = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative z-10">
+      <Countdown />
       <div className="w-full max-w-md animate-fade-in-up">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="mb-3 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/20">
+          <div className="mb-3 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border border-yellow-500/20">
             <span className="text-3xl">🎮</span>
           </div>
           <h1 className="text-3xl font-bold text-white">Game Lobby</h1>
@@ -121,20 +130,20 @@ const Lobby = () => {
             <div
               className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${
                 playerSymbol === "X"
-                  ? "bg-purple-500/10 border-purple-500/20"
+                  ? "bg-yellow-500/10 border-yellow-500/20"
                   : "bg-white/5 border-white/10"
               }`}
             >
-              <span className="text-xl font-bold text-purple-400">✕</span>
+              <span className="text-xl font-bold text-yellow-400">✕</span>
               <span className="text-sm text-white font-medium flex-1">
                 Player X{" "}
                 {playerSymbol === "X" && (
-                  <span className="text-purple-400 text-xs">(You)</span>
+                  <span className="text-yellow-400 text-xs">(You)</span>
                 )}
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="text-xs text-emerald-400">Ready</span>
+                <span className="w-2 h-2 rounded-full bg-white" />
+                <span className="text-xs text-white">Ready</span>
               </span>
             </div>
 
@@ -142,7 +151,7 @@ const Lobby = () => {
             <div
               className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${
                 playerSymbol === "O"
-                  ? "bg-emerald-500/10 border-emerald-500/20"
+                  ? "bg-white/10 border-white/20"
                   : isReady
                   ? "bg-white/5 border-white/10"
                   : "bg-white/[0.02] border-white/5 border-dashed"
@@ -150,7 +159,7 @@ const Lobby = () => {
             >
               <span
                 className={`text-xl font-bold ${
-                  isReady ? "text-emerald-400" : "text-gray-600"
+                  isReady ? "text-white" : "text-gray-600"
                 }`}
               >
                 ○
@@ -164,7 +173,7 @@ const Lobby = () => {
                   <>
                     Player O{" "}
                     {playerSymbol === "O" && (
-                      <span className="text-emerald-400 text-xs">(You)</span>
+                      <span className="text-white text-xs">(You)</span>
                     )}
                   </>
                 ) : (
@@ -173,8 +182,8 @@ const Lobby = () => {
               </span>
               {isReady ? (
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span className="text-xs text-emerald-400">Ready</span>
+                  <span className="w-2 h-2 rounded-full bg-white" />
+                  <span className="text-xs text-white">Ready</span>
                 </span>
               ) : (
                 <svg
@@ -206,8 +215,8 @@ const Lobby = () => {
           <div className="flex items-center justify-center gap-3">
             {isReady ? (
               <>
-                <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-sm font-medium text-emerald-400">
+                <span className="w-3 h-3 rounded-full bg-white animate-pulse" />
+                <span className="text-sm font-medium text-white">
                   Opponent Connected — Ready to play!
                 </span>
               </>
@@ -253,7 +262,7 @@ const Lobby = () => {
             You are playing as{" "}
             <span
               className={`font-bold text-base ${
-                playerSymbol === "X" ? "text-purple-400" : "text-emerald-400"
+                playerSymbol === "X" ? "text-yellow-400" : "text-white"
               }`}
             >
               {playerSymbol === "X" ? "✕" : "○"}

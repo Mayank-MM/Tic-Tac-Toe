@@ -73,11 +73,11 @@ const InteractiveBackground = () => {
             fontWeight: 800,
             fontFamily: "'Inter', sans-serif",
             color: s.isX
-              ? "rgba(124, 92, 252, 0.6)" // purple for X
-              : "rgba(52, 211, 153, 0.6)", // green for O
+              ? "rgba(250, 204, 21, 0.6)" // yellow for X
+              : "rgba(255, 255, 255, 0.4)", // white for O
             textShadow: s.isX
-              ? "0 0 16px rgba(124, 92, 252, 0.4)"
-              : "0 0 16px rgba(52, 211, 153, 0.4)",
+              ? "0 0 16px rgba(250, 204, 21, 0.4)"
+              : "0 0 16px rgba(255, 255, 255, 0.2)",
             transform: "translate(-50%, -50%)",
             animation: `symbolFloat ${s.duration}ms ease-out forwards`,
             "--drift": `${s.drift}px`,

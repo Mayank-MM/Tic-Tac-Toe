@@ -43,6 +43,7 @@ const registerRoomHandlers = (io, socket) => {
       ],
       status: "waiting", // waiting | ready | playing | finished
       createdAt: Date.now(),
+      countdownInterval: null, // Track countdown interval for cleanup
     };
 
     rooms.set(roomCode, room);
@@ -106,11 +107,33 @@ const registerRoomHandlers = (io, socket) => {
       playerSymbol: "O",
     });
 
-    // Notify the host that an opponent has joined
-    socket.to(code).emit("player-joined", {
+    // Broadcast room update to BOTH players
+    io.to(code).emit("room-updated", {
+      roomCode: code,
       playerCount: room.players.length,
       status: room.status,
     });
+
+    // Notify that room is ready and start countdown
+    io.to(code).emit("room-ready");
+
+    // Start 3-second countdown
+    let count = 3;
+    io.to(code).emit("start-countdown", count);
+
+    room.countdownInterval = setInterval(() => {
+      count--;
+      if (count > 0) {
+        io.to(code).emit("start-countdown", count);
+      } else {
+        // Countdown finished
+        clearInterval(room.countdownInterval);
+        room.countdownInterval = null;
+        room.status = "playing";
+        io.to(code).emit("start-game");
+        console.log(`🚀 Game started in room: ${code}`);
+      }
+    }, 1000);
   });
 
   // ─── DISCONNECT ─────────────────────────────────────
@@ -123,6 +146,12 @@ const registerRoomHandlers = (io, socket) => {
     // Remove the player from the room
     room.players = room.players.filter((p) => p.socketId !== socket.id);
 
+    // Cancel countdown if it was running
+    if (room.countdownInterval) {
+      clearInterval(room.countdownInterval);
+      room.countdownInterval = null;
+    }
+
     if (room.players.length === 0) {
       // No players left → delete the room
       rooms.delete(room.roomCode);
@@ -130,7 +159,16 @@ const registerRoomHandlers = (io, socket) => {
     } else {
       // Notify remaining player
       room.status = "waiting";
+      
+      // Emit player-left specifically for explicit disconnect UI
       io.to(room.roomCode).emit("player-left", {
+        playerCount: room.players.length,
+        status: room.status,
+      });
+
+      // Also emit general room-updated
+      io.to(room.roomCode).emit("room-updated", {
+        roomCode: room.roomCode,
         playerCount: room.players.length,
         status: room.status,
       });

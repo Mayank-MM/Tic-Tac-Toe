@@ -76,9 +76,24 @@ npm run dev
 - React + Vite + Tailwind CSS frontend
 - Express + Socket.IO backend
 - Real-time connection status indicator
-- Interactive X/O background effect
+- Interactive X/O background effect (Yellow & White Theme)
 
-⬜ **Phase 2** — Room Management (Coming Soon)
+✅ **Phase 2 — Room Management** (Complete)
+- Generate unique 6-character room codes
+- Create and Join room functionality
+- Room state tracked in memory using Javascript Maps
+- Home page UI with clear Call-to-Action buttons
+
+✅ **Phase 3 — Lobby Synchronization** (Complete)
+- Multiplayer lobby UI with synchronized room state
+- Animated 3..2..1 game start countdown
+- Real-time Player Join / Disconnect handling
+- Seamless transition to Game Page placeholder
+
+⬜ **Phase 4 — Gameplay & Game Logic** (Coming Soon)
+- Interactive 3x3 Tic-Tac-Toe board
+- Turn-based move validation
+- Win/Draw detection logic
 
 ## License
 

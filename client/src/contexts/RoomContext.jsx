@@ -11,16 +11,20 @@ const RoomContext = createContext(null);
 
 /**
  * RoomProvider wraps the app and provides room state + actions.
- * State: roomCode, playerSymbol, playerCount, roomStatus, error
+ * State: roomCode, playerSymbol, playerCount, roomStatus, error, isRoomReady, countdown
  * Actions: createRoom, joinRoom, leaveRoom
  */
 export const RoomProvider = ({ children }) => {
   const [roomCode, setRoomCode] = useState(null);
   const [playerSymbol, setPlayerSymbol] = useState(null);
   const [playerCount, setPlayerCount] = useState(0);
-  const [roomStatus, setRoomStatus] = useState(null); // waiting | ready
+  const [roomStatus, setRoomStatus] = useState(null); // waiting | ready | playing
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Phase 3 states
+  const [isRoomReady, setIsRoomReady] = useState(false);
+  const [countdown, setCountdown] = useState(null);
 
   const navigate = useNavigate();
 
@@ -41,6 +45,8 @@ export const RoomProvider = ({ children }) => {
       setPlayerSymbol(response.playerSymbol);
       setPlayerCount(1);
       setRoomStatus("waiting");
+      setIsRoomReady(false);
+      setCountdown(null);
       navigate(`/lobby/${response.roomCode}`);
     });
   }, [navigate]);
@@ -65,6 +71,8 @@ export const RoomProvider = ({ children }) => {
         setPlayerSymbol(response.playerSymbol);
         setPlayerCount(2);
         setRoomStatus("ready");
+        setIsRoomReady(false);
+        setCountdown(null);
         navigate(`/lobby/${response.roomCode}`);
       });
     },
@@ -77,6 +85,8 @@ export const RoomProvider = ({ children }) => {
     setPlayerSymbol(null);
     setPlayerCount(0);
     setRoomStatus(null);
+    setIsRoomReady(false);
+    setCountdown(null);
     setError(null);
     navigate("/");
   }, [navigate]);
@@ -88,8 +98,8 @@ export const RoomProvider = ({ children }) => {
 
   // ─── SOCKET EVENT LISTENERS ─────────────────────────
   useEffect(() => {
-    // When the second player joins (host receives this)
-    const onPlayerJoined = (data) => {
+    // General room update (e.g. from joining or leaving)
+    const onRoomUpdated = (data) => {
       setPlayerCount(data.playerCount);
       setRoomStatus(data.status);
     };
@@ -98,14 +108,36 @@ export const RoomProvider = ({ children }) => {
     const onPlayerLeft = (data) => {
       setPlayerCount(data.playerCount);
       setRoomStatus(data.status);
+      setIsRoomReady(false);
+      setCountdown(null);
     };
 
-    socket.on("player-joined", onPlayerJoined);
+    // When countdown ticks
+    const onStartCountdown = (count) => {
+      setCountdown(count);
+    };
+
+    // When countdown finishes
+    const onStartGame = () => {
+      setCountdown(null);
+      setIsRoomReady(true);
+    };
+
+    // Old events (for backwards compatibility during transition, can be removed if not emitted anymore)
+    socket.on("player-joined", onRoomUpdated); // we map this to onRoomUpdated just in case
+    
+    // Phase 3 events
+    socket.on("room-updated", onRoomUpdated);
     socket.on("player-left", onPlayerLeft);
+    socket.on("start-countdown", onStartCountdown);
+    socket.on("start-game", onStartGame);
 
     return () => {
-      socket.off("player-joined", onPlayerJoined);
+      socket.off("player-joined", onRoomUpdated);
+      socket.off("room-updated", onRoomUpdated);
       socket.off("player-left", onPlayerLeft);
+      socket.off("start-countdown", onStartCountdown);
+      socket.off("start-game", onStartGame);
     };
   }, []);
 
@@ -116,6 +148,8 @@ export const RoomProvider = ({ children }) => {
     roomStatus,
     error,
     isLoading,
+    isRoomReady,
+    countdown,
     createRoom,
     joinRoom,
     leaveRoom,
