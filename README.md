@@ -90,9 +90,14 @@ npm run dev
 - Real-time Player Join / Disconnect handling
 - Seamless transition to Game Page placeholder
 
-⬜ **Phase 4 — Gameplay & Game Logic** (Coming Soon)
-- Interactive 3x3 Tic-Tac-Toe board
-- Turn-based move validation
+✅ **Phase 4 — Game Entry & Board UI** (Complete)
+- Immersive Framer Motion paper-unfold transition
+- Hand-drawn pencil aesthetic for game board and cells
+- GameContext state setup for board initialization
+
+⬜ **Phase 5 — Gameplay & Socket Logic** (Coming Soon)
+- Interactive 3x3 Tic-Tac-Toe move handling
+- Turn-based move validation via Socket.IO
 - Win/Draw detection logic
 
 ## License

@@ -1,15 +1,23 @@
 // ============================================
-// Page: Game (Placeholder)
+// Page: Game
+// Handles the paper transition and game board
 // ============================================
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useRoom } from "../contexts/RoomContext";
+import { GameProvider } from "../contexts/GameContext";
+import PaperTransition from "../components/PaperTransition";
+import GameHeader from "../components/GameHeader";
+import PlayerInfo from "../components/PlayerInfo";
+import Board from "../components/Board";
 import ConnectionStatus from "../components/ConnectionStatus";
 
-const Game = () => {
-  const { roomCode, playerSymbol, isRoomReady, leaveRoom } = useRoom();
+const GameContent = () => {
+  const { roomCode, isRoomReady, leaveRoom } = useRoom();
   const navigate = useNavigate();
+  const [showTransition, setShowTransition] = useState(true);
 
   // Redirect if not properly initialized
   useEffect(() => {
@@ -21,51 +29,59 @@ const Game = () => {
   if (!roomCode || !isRoomReady) return null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative z-10">
-      <div className="w-full max-w-md animate-fade-in-up text-center">
-        {/* Header */}
-        <div className="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-white/20 to-gray-300/20 border border-white/20">
-          <span className="text-4xl">⚔️</span>
-        </div>
-        <h1 className="text-4xl font-extrabold text-white mb-2">Game Started</h1>
-        
-        <div className="glass-card p-6 my-8 space-y-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-gray-500 font-medium mb-1">Room</p>
-            <p className="text-2xl font-mono font-bold tracking-widest text-white">{roomCode}</p>
-          </div>
-          
-          <div className="h-px bg-white/10 w-full" />
-          
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-gray-500 font-medium mb-1">You are playing as</p>
-            <p className={`text-5xl font-extrabold mt-2 ${playerSymbol === "X" ? "text-yellow-400" : "text-white"}`}>
-              {playerSymbol === "X" ? "✕" : "○"}
-            </p>
-          </div>
-        </div>
-
-        <p className="text-gray-400 mb-8">(Game board and logic coming in next phase)</p>
-
-        {/* Leave Button */}
-        <button
-          onClick={leaveRoom}
-          className="py-3 px-8 rounded-xl text-sm font-medium
-                     text-gray-400 hover:text-red-400
-                     bg-white/5 border border-white/10
-                     hover:bg-red-500/10 hover:border-red-500/20
-                     active:scale-[0.98]
-                     transition-all duration-200"
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 relative z-10">
+      {showTransition ? (
+        <PaperTransition onAnimationComplete={() => setShowTransition(false)} />
+      ) : (
+        <motion.div
+          className="w-full max-w-[500px] bg-[#f4f1ea] rounded-xl shadow-2xl p-6 md:p-10 relative overflow-hidden text-gray-800"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          style={{
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(0,0,0,0.02)"
+          }}
         >
-          Leave Game
-        </button>
+          {/* Subtle paper texture overlay */}
+          <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#c4bead_1px,transparent_1px)] [background-size:20px_20px]" />
+          
+          <div className="relative z-10">
+            <GameHeader />
+            <PlayerInfo />
+            <Board />
+            
+            <div className="mt-12 flex justify-center">
+              <button
+                onClick={leaveRoom}
+                className="py-3 px-8 rounded-xl text-sm font-bold tracking-widest uppercase
+                           text-red-500 hover:text-red-700
+                           border-2 border-red-200 hover:border-red-400
+                           bg-transparent hover:bg-red-50
+                           active:scale-[0.98]
+                           transition-all duration-200"
+              >
+                Leave Game
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
-        {/* Connection Status */}
-        <div className="mt-8 flex justify-center">
+      {/* Connection Status pinned to bottom */}
+      {!showTransition && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
           <ConnectionStatus />
         </div>
-      </div>
+      )}
     </div>
+  );
+};
+
+const Game = () => {
+  return (
+    <GameProvider>
+      <GameContent />
+    </GameProvider>
   );
 };
 
