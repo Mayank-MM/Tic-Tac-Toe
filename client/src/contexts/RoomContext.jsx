@@ -125,10 +125,13 @@ export const RoomProvider = ({ children }) => {
     };
 
     // When countdown finishes
-    const onStartGame = () => {
+    const onStartGame = (data) => {
       setCountdown(null);
       setIsRoomReady(true);
       setRoomStatus("playing");
+      if (data && data.playerSymbol) {
+        setPlayerSymbol(data.playerSymbol);
+      }
     };
 
     // Old events (for backwards compatibility during transition, can be removed if not emitted anymore)

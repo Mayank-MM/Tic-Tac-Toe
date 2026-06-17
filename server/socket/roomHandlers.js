@@ -132,7 +132,22 @@ const registerRoomHandlers = (io, socket) => {
         room.status = "playing";
         room.board = Array(9).fill("");
         room.currentTurn = "X";
-        io.to(code).emit("start-game");
+
+        // Randomly assign symbol "X" and "O" to the two players
+        const hostPlayer = room.players[0];
+        const guestPlayer = room.players[1];
+        if (hostPlayer && guestPlayer) {
+          const isHostX = Math.random() > 0.5;
+          hostPlayer.symbol = isHostX ? "X" : "O";
+          guestPlayer.symbol = isHostX ? "O" : "X";
+
+          // Notify each player individually with their assigned symbol
+          io.to(hostPlayer.socketId).emit("start-game", { playerSymbol: hostPlayer.symbol });
+          io.to(guestPlayer.socketId).emit("start-game", { playerSymbol: guestPlayer.symbol });
+        } else {
+          // Fallback if players list is not fully populated
+          io.to(code).emit("start-game");
+        }
         console.log(`🚀 Game started in room: ${code}`);
       }
     }, 1000);
