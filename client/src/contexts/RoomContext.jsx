@@ -107,9 +107,16 @@ export const RoomProvider = ({ children }) => {
     // When a player leaves the room
     const onPlayerLeft = (data) => {
       setPlayerCount(data.playerCount);
-      setRoomStatus(data.status);
-      setIsRoomReady(false);
-      setCountdown(null);
+      setRoomStatus((prevStatus) => {
+        // If the game was active ("playing"), keep isRoomReady as true
+        // so that the remaining player is not immediately redirected out of the game page.
+        // This allows them to see the "Opponent Disconnected" message.
+        if (prevStatus !== "playing") {
+          setIsRoomReady(false);
+          setCountdown(null);
+        }
+        return data.status;
+      });
     };
 
     // When countdown ticks
@@ -121,6 +128,7 @@ export const RoomProvider = ({ children }) => {
     const onStartGame = () => {
       setCountdown(null);
       setIsRoomReady(true);
+      setRoomStatus("playing");
     };
 
     // Old events (for backwards compatibility during transition, can be removed if not emitted anymore)

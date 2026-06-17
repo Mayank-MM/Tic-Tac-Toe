@@ -95,10 +95,11 @@ npm run dev
 - Hand-drawn pencil aesthetic for game board and cells
 - GameContext state setup for board initialization
 
-⬜ **Phase 5 — Gameplay & Socket Logic** (Coming Soon)
-- Interactive 3x3 Tic-Tac-Toe move handling
-- Turn-based move validation via Socket.IO
-- Win/Draw detection logic
+✅ **Phase 5 — Gameplay & Turn Synchronization** (Complete)
+- Real-time move synchronization via Socket.IO
+- Authoritative server-side validation & turn management
+- Immersive placement animation & toast error handling
+- Opponent disconnect handling & board locking
 
 ## License
 

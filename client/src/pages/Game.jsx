@@ -5,9 +5,9 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRoom } from "../contexts/RoomContext";
-import { GameProvider } from "../contexts/GameContext";
+import { GameProvider, useGame } from "../contexts/GameContext";
 import PaperTransition from "../components/PaperTransition";
 import GameHeader from "../components/GameHeader";
 import PlayerInfo from "../components/PlayerInfo";
@@ -16,6 +16,7 @@ import ConnectionStatus from "../components/ConnectionStatus";
 
 const GameContent = () => {
   const { roomCode, isRoomReady, leaveRoom } = useRoom();
+  const { toastMessage } = useGame();
   const navigate = useNavigate();
   const [showTransition, setShowTransition] = useState(true);
 
@@ -49,6 +50,22 @@ const GameContent = () => {
             <GameHeader />
             <PlayerInfo />
             <Board />
+            
+            {/* Custom Toast Notification for Invalid Moves */}
+            <AnimatePresence>
+              {toastMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-4 p-3 rounded-lg border border-red-300 bg-red-50 text-red-700 text-sm font-semibold text-center shadow-sm flex items-center justify-center gap-2"
+                >
+                  <span>⚠️</span>
+                  <span>{toastMessage}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
             
             <div className="mt-12 flex justify-center">
               <button

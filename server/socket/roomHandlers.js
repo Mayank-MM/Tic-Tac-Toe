@@ -130,11 +130,73 @@ const registerRoomHandlers = (io, socket) => {
         clearInterval(room.countdownInterval);
         room.countdownInterval = null;
         room.status = "playing";
+        room.board = Array(9).fill("");
+        room.currentTurn = "X";
         io.to(code).emit("start-game");
         console.log(`🚀 Game started in room: ${code}`);
       }
     }, 1000);
   });
+
+  // ─── MAKE MOVE ──────────────────────────────────────
+  socket.on("make-move", ({ roomCode, cellIndex }) => {
+    const code = roomCode?.toString().trim().toUpperCase();
+    const room = rooms.get(code);
+
+    // Rule 3: Valid room and active status
+    if (!room) {
+      return socket.emit("invalid-move", {
+        reason: "Room not found.",
+      });
+    }
+
+    if (room.status !== "playing") {
+      return socket.emit("invalid-move", {
+        reason: "Game is not currently active.",
+      });
+    }
+
+    // Verify player socket is registered in the room
+    const player = room.players.find((p) => p.socketId === socket.id);
+    if (!player) {
+      return socket.emit("invalid-move", {
+        reason: "You are not a player in this room.",
+      });
+    }
+
+    // Rule 2: Only current player can move
+    if (player.symbol !== room.currentTurn) {
+      return socket.emit("invalid-move", {
+        reason: "Not your turn.",
+      });
+    }
+
+    // Rule 4: Cell index range check
+    const index = parseInt(cellIndex, 10);
+    if (isNaN(index) || index < 0 || index > 8) {
+      return socket.emit("invalid-move", {
+        reason: "Invalid board cell index.",
+      });
+    }
+
+    // Rule 1: Cell must be empty
+    if (room.board[index] !== "") {
+      return socket.emit("invalid-move", {
+        reason: "Cell already occupied.",
+      });
+    }
+
+    // Apply valid move and toggle turn
+    room.board[index] = player.symbol;
+    room.currentTurn = room.currentTurn === "X" ? "O" : "X";
+
+    // Broadcast board updates to all room players
+    io.to(code).emit("board-updated", {
+      board: room.board,
+      currentTurn: room.currentTurn,
+    });
+  });
+
 
   // ─── DISCONNECT ─────────────────────────────────────
   socket.on("disconnect", () => {
