@@ -23,6 +23,10 @@ export const GameProvider = ({ children }) => {
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Match score tracking structure for future rematch logic
+  const [scores, setScores] = useState({ x: 0, o: 0, draws: 0 });
+  const [moveHistory, setMoveHistory] = useState([]);
+
   // Hardcoded for compatibility with previous scaffolding (no win/draw checks allowed in this phase)
   const gameStatus = "playing";
   const winner = null;
@@ -71,7 +75,33 @@ export const GameProvider = ({ children }) => {
   // Set up socket event listeners
   useEffect(() => {
     const handleBoardUpdated = (data) => {
-      setBoard(data.board);
+      // Diff with current board to find the newly made move
+      setBoard((prevBoard) => {
+        const nextBoard = data.board;
+        const diffIdx = nextBoard.findIndex((val, idx) => val !== prevBoard[idx] && val !== "");
+        if (diffIdx !== -1) {
+          const symbol = nextBoard[diffIdx];
+          const cellNames = [
+            "Top Left", "Top Center", "Top Right",
+            "Middle Left", "Center", "Middle Right",
+            "Bottom Left", "Bottom Center", "Bottom Right"
+          ];
+          const cellName = cellNames[diffIdx];
+          const moveNumber = prevBoard.filter((c) => c !== "").length + 1;
+          setMoveHistory((prevHistory) => {
+            // Avoid duplicate registrations
+            if (prevHistory.some((h) => h.number === moveNumber)) return prevHistory;
+            return [...prevHistory, { number: moveNumber, symbol, cellName }];
+          });
+        } else {
+          // Reset move history if board is fully wiped (future rematch reset preparation)
+          const occupiedCount = nextBoard.filter((c) => c !== "").length;
+          if (occupiedCount === 0) {
+            setMoveHistory([]);
+          }
+        }
+        return nextBoard;
+      });
       setCurrentTurn(data.currentTurn);
     };
 
@@ -101,9 +131,12 @@ export const GameProvider = ({ children }) => {
     winner,
     opponentDisconnected,
     toastMessage,
+    scores,
+    moveHistory,
     makeMove,
     clearToast,
     showToast,
+    setScores,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

@@ -7,10 +7,12 @@ import { useState } from "react";
 import ConnectionStatus from "../components/ConnectionStatus";
 import { useRoom } from "../contexts/RoomContext";
 import useSocket from "../hooks/useSocket";
+import RouteTransition from "../animations/RouteTransition";
+import StickyNote from "../components/StickyNote";
 
 /**
  * Home page: Displays game title, connection status,
- * and room creation / joining controls.
+ * and room creation / joining controls using the notebook/sticky note aesthetic.
  */
 const Home = () => {
   const [joinCode, setJoinCode] = useState("");
@@ -34,152 +36,121 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative z-10">
-      {/* Hero Section */}
-      <div className="text-center max-w-lg animate-fade-in-up">
-        {/* Game Icon */}
-        <div className="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border border-yellow-500/20">
-          <span className="text-4xl" role="img" aria-label="game icon">
-            ❌⭕
-          </span>
+    <RouteTransition>
+      <div className="flex flex-col items-center justify-center w-full max-w-md px-4 relative z-10 py-8">
+        {/* Hero Section */}
+        <div className="text-center max-w-lg mb-8">
+          {/* Game Icon */}
+          <div className="mb-4 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500/15 to-amber-500/15 border border-yellow-500/15 shadow-sm">
+            <span className="text-4xl animate-pulse" role="img" aria-label="game icon">
+              ✏️
+            </span>
+          </div>
+
+          {/* Title */}
+          <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-none text-white">
+            <span className="font-handwritten text-yellow-400 block rotate-[-3deg] text-6xl mb-2 text-shadow-sm">
+              Multiplayer
+            </span>
+            <span className="text-4xl sm:text-5xl font-bold tracking-wide">Tic-Tac-Toe</span>
+          </h1>
+
+          {/* Tagline */}
+          <p className="mt-4 text-gray-400 text-base font-light leading-relaxed">
+            Real-time multiplayer battles. <br className="hidden sm:block" />
+            Play with your friends on a virtual notebook grid.
+          </p>
         </div>
 
-        {/* Title */}
-        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-tight">
-          <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
-            Multiplayer
-          </span>
-          <br />
-          <span className="text-white">Tic-Tac-Toe</span>
-        </h1>
-
-        {/* Tagline */}
-        <p className="mt-4 text-gray-400 text-lg font-light leading-relaxed">
-          Real-time multiplayer battles. <br className="hidden sm:block" />
-          Challenge your friends — anytime, anywhere.
-        </p>
-      </div>
-
-      {/* Action Cards */}
-      <div
-        className="mt-10 w-full max-w-md animate-fade-in-up"
-        style={{ animationDelay: "0.15s" }}
-      >
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
-            ⚠️ {error}
-          </div>
-        )}
-
-        {/* ── Primary CTA: Create Room ──────────────── */}
-        <button
-          id="create-room-btn"
-          onClick={createRoom}
-          disabled={!isConnected || isLoading}
-          className="group w-full py-5 px-6 rounded-2xl font-bold text-black text-lg
-                     bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-400
-                     bg-[length:200%_100%] hover:bg-right
-                     active:scale-[0.97]
-                     disabled:opacity-40 disabled:cursor-not-allowed
-                     transition-all duration-300 ease-out
-                     shadow-[0_4px_24px_rgba(250,204,21,0.3)] hover:shadow-[0_6px_32px_rgba(250,204,21,0.5)]
-                     border border-yellow-400/20 hover:border-yellow-400/40
-                     flex items-center justify-center gap-3"
-        >
-          {isLoading ? (
-            <span className="inline-flex items-center gap-2">
-              <svg
-                className="animate-spin h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-              Creating Room...
-            </span>
-          ) : (
-            <>
-              <span className="text-xl group-hover:scale-110 transition-transform duration-200">🎮</span>
-              <span>Create Room</span>
-              <span className="text-black/60 text-sm font-normal ml-1">— Start a match</span>
-            </>
+        {/* Action Cards */}
+        <div className="w-full space-y-6">
+          {/* Error Message */}
+          {error && (
+            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-handwritten text-lg animate-bounce">
+              ⚠️ {error}
+            </div>
           )}
-        </button>
 
-        {/* Divider */}
-        <div className="flex items-center gap-4 my-8">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-          <span className="text-[11px] uppercase tracking-[0.25em] text-gray-500 font-semibold">
-            or join a friend
-          </span>
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          {/* Create Room Sticky Note (Yellow) */}
+          <StickyNote color="yellow" rotation="rotate-[-1.5deg]" className="p-6">
+            <h3 className="text-2xl font-handwritten font-bold mb-3 flex items-center gap-2 text-gray-800">
+              <span>📝</span> Create a Match
+            </h3>
+            <p className="text-xs text-gray-600 mb-5 font-sans leading-relaxed">
+              Start a new game session. You will get a unique room code to share with a friend.
+            </p>
+            <button
+              id="create-room-btn"
+              onClick={createRoom}
+              disabled={!isConnected || isLoading}
+              className="group w-full py-3 px-5 rounded-xl font-bold text-white text-sm
+                         bg-gray-800 hover:bg-gray-900 active:scale-[0.98]
+                         disabled:opacity-40 disabled:cursor-not-allowed
+                         transition-all duration-200 shadow-md flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <span className="inline-flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Creating Room...
+                </span>
+              ) : (
+                <>
+                  <span className="text-lg">🎮</span>
+                  <span>Create Room</span>
+                </>
+              )}
+            </button>
+          </StickyNote>
+
+          {/* Join Room Sticky Note (Blue) */}
+          <StickyNote color="blue" rotation="rotate-[1deg]" className="p-6">
+            <form onSubmit={handleJoinSubmit} className="space-y-3">
+              <h3 className="text-2xl font-handwritten font-bold mb-2 flex items-center gap-2 text-gray-800">
+                <span>🔗</span> Join by Room Code
+              </h3>
+              <p className="text-xs text-gray-600 mb-4 font-sans leading-relaxed">
+                Enter your friend's 6-character room code to connect and start playing.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  id="room-code-input"
+                  type="text"
+                  value={joinCode}
+                  onChange={handleCodeChange}
+                  placeholder="ABX72K"
+                  maxLength={6}
+                  className="flex-1 px-3 py-2.5 rounded-lg text-sm font-mono text-center text-gray-800
+                             tracking-[0.2em] uppercase placeholder-gray-400
+                             bg-white border border-gray-300
+                             focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+                             transition-all duration-200 min-w-0"
+                />
+                <button
+                  id="join-room-btn"
+                  type="submit"
+                  disabled={!isConnected || isLoading || joinCode.length !== 6}
+                  className="px-5 py-2.5 rounded-lg font-bold text-white text-sm
+                             bg-blue-600 hover:bg-blue-700
+                             active:scale-[0.97]
+                             disabled:opacity-40 disabled:cursor-not-allowed
+                             transition-all duration-200 shadow-sm border border-blue-700"
+                >
+                  Join →
+                </button>
+              </div>
+            </form>
+          </StickyNote>
         </div>
 
-        {/* ── Secondary CTA: Join Room ─────────────── */}
-        <form
-          onSubmit={handleJoinSubmit}
-          className="glass-card p-5 space-y-3"
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-base">🔗</span>
-            <span className="text-sm font-semibold text-white">
-              Join by Room Code
-            </span>
-          </div>
-          <div className="flex gap-3">
-            <input
-              id="room-code-input"
-              type="text"
-              value={joinCode}
-              onChange={handleCodeChange}
-              placeholder="Enter 6-digit code"
-              maxLength={6}
-              className="flex-1 px-4 py-3.5 rounded-xl text-sm font-mono text-center text-white
-                         tracking-[0.25em] uppercase placeholder-gray-500
-                         bg-white/[0.03] border border-white/10
-                         focus:outline-none focus:border-white/50 focus:bg-white/[0.06]
-                         focus:ring-2 focus:ring-white/20
-                         transition-all duration-200 min-w-0"
-            />
-            <button
-              id="join-room-btn"
-              type="submit"
-              disabled={!isConnected || isLoading || joinCode.length !== 6}
-              className="px-7 py-3.5 rounded-xl font-bold text-black text-sm
-                         bg-white hover:bg-gray-200
-                         active:scale-[0.97]
-                         disabled:opacity-30 disabled:cursor-not-allowed
-                         transition-all duration-200
-                         shadow-[0_4px_16px_rgba(255,255,255,0.1)] hover:shadow-[0_4px_24px_rgba(255,255,255,0.2)]
-                         border border-white/20 hover:border-white/40"
-            >
-              Join →
-            </button>
-          </div>
-        </form>
+        {/* Connection Status */}
+        <div className="mt-8">
+          <ConnectionStatus />
+        </div>
       </div>
-
-      {/* Connection Status */}
-      <div
-        className="mt-8 animate-fade-in-up"
-        style={{ animationDelay: "0.3s" }}
-      >
-        <ConnectionStatus />
-      </div>
-    </div>
+    </RouteTransition>
   );
 };
 

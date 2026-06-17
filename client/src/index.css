@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap');
 @import "tailwindcss";
 
 /* ============================================
@@ -21,7 +22,8 @@
   --color-danger-glow: rgba(248, 113, 113, 0.3);
 
   /* Typography */
-  --font-family: "Inter", system-ui, -apple-system, sans-serif;
+  --font-family: "Outfit", "Inter", system-ui, -apple-system, sans-serif;
+  --font-handwritten: "Caveat", cursive;
 
   /* Spacing */
   --radius-sm: 8px;
@@ -205,4 +207,65 @@ body::before {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   Notebook & Pencil Custom Classes
+   ============================================ */
+
+.font-handwritten {
+  font-family: var(--font-handwritten);
+}
+
+.notebook-paper {
+  background-color: #fcfaf2;
+  background-image: 
+    linear-gradient(rgba(0, 120, 255, 0.08) 1px, transparent 1px);
+  background-size: 100% 28px;
+  background-position: 0 10px;
+  position: relative;
+}
+
+.notebook-paper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 45px;
+  width: 2px;
+  background-color: rgba(255, 77, 77, 0.4);
+  pointer-events: none;
+}
+
+/* 3D curled shadow for sticky notes */
+.sticky-note-shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.sticky-note-shadow::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  bottom: 8px;
+  right: 12px;
+  width: 80%;
+  height: 15px;
+  box-shadow: 0 12px 10px rgba(0, 0, 0, 0.35);
+  transform: rotate(3deg) skew(8deg);
+  background: transparent;
+  pointer-events: none;
+}
+
+/* Pencil writing/draw utility */
+@keyframes pencilWrite {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.pencil-draw {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: pencilWrite 0.5s ease-out forwards;
 }

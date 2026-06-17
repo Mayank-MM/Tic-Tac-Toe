@@ -73,11 +73,9 @@ const InteractiveBackground = () => {
             fontWeight: 800,
             fontFamily: "'Inter', sans-serif",
             color: s.isX
-              ? "rgba(250, 204, 21, 0.6)" // yellow for X
-              : "rgba(255, 255, 255, 0.4)", // white for O
-            textShadow: s.isX
-              ? "0 0 16px rgba(250, 204, 21, 0.4)"
-              : "0 0 16px rgba(255, 255, 255, 0.2)",
+              ? "rgba(75, 85, 99, 0.22)" // soft graphite slate gray
+              : "rgba(107, 114, 128, 0.16)",
+            textShadow: "none",
             transform: "translate(-50%, -50%)",
             animation: `symbolFloat ${s.duration}ms ease-out forwards`,
             "--drift": `${s.drift}px`,
