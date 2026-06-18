@@ -17,10 +17,11 @@ import Scoreboard from "../components/Scoreboard";
 import PresenceIndicator from "../components/PresenceIndicator";
 import ConnectionStatus from "../components/ConnectionStatus";
 import RouteTransition from "../animations/RouteTransition";
+import GameOverModal from "../components/GameOverModal";
 
 const GameContent = () => {
   const { roomCode, isRoomReady, leaveRoom } = useRoom();
-  const { toastMessage, opponentDisconnected } = useGame();
+  const { toastMessage, opponentDisconnected, draw } = useGame();
   const { isConnected } = useSocket();
   const navigate = useNavigate();
   const [showTransition, setShowTransition] = useState(true);
@@ -43,7 +44,11 @@ const GameContent = () => {
           <motion.div
             className="notebook-paper w-full rounded-xl shadow-2xl p-6 md:p-8 relative overflow-hidden text-gray-800"
             initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            animate={
+              draw
+                ? { x: [-3, 3, -3, 3, 0], transition: { duration: 0.4 } }
+                : { opacity: 1, scale: 1 }
+            }
             transition={{ duration: 0.4 }}
             style={{
               boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(0,0,0,0.02)"
@@ -79,7 +84,6 @@ const GameContent = () => {
               
               {/* Imperfect Board Grid */}
               <NotebookBoard />
-              
               
               {/* Custom Toast Notification for Invalid Moves */}
               <AnimatePresence>
@@ -121,6 +125,9 @@ const GameContent = () => {
             <ConnectionStatus />
           </div>
         )}
+
+        {/* End Game Modal Dialog overlay */}
+        <GameOverModal />
       </div>
     </RouteTransition>
   );

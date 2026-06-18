@@ -27,9 +27,11 @@ export const GameProvider = ({ children }) => {
   const [scores, setScores] = useState({ x: 0, o: 0, draws: 0 });
   const [moveHistory, setMoveHistory] = useState([]);
 
-  // Hardcoded for compatibility with previous scaffolding (no win/draw checks allowed in this phase)
-  const gameStatus = "playing";
-  const winner = null;
+  // States for game completion flow
+  const [gameStatus, setGameStatus] = useState("playing");
+  const [winner, setWinner] = useState(null);
+  const [winningCells, setWinningCells] = useState(null);
+  const [draw, setDraw] = useState(false);
 
   // Auto-hide toast message
   const showToast = useCallback((message) => {
@@ -55,6 +57,11 @@ export const GameProvider = ({ children }) => {
       return;
     }
 
+    if (gameStatus === "finished") {
+      showToast("Game is over.");
+      return;
+    }
+
     if (board[index] !== "") {
       showToast("Invalid Move: Cell already occupied");
       return;
@@ -70,7 +77,7 @@ export const GameProvider = ({ children }) => {
       roomCode,
       cellIndex: index,
     });
-  }, [board, currentTurn, playerSymbol, roomCode, opponentDisconnected, showToast]);
+  }, [board, currentTurn, playerSymbol, roomCode, opponentDisconnected, gameStatus, showToast]);
 
   // Set up socket event listeners
   useEffect(() => {
@@ -105,6 +112,39 @@ export const GameProvider = ({ children }) => {
       setCurrentTurn(data.currentTurn);
     };
 
+    const handleGameOver = (data) => {
+      setGameStatus("finished");
+      if (data.draw) {
+        setDraw(true);
+        setWinner(null);
+        setWinningCells(null);
+        setScores((prev) => ({ ...prev, draws: prev.draws + 1 }));
+      } else {
+        setWinner(data.winner);
+        setWinningCells(data.winningCells);
+        setDraw(false);
+        setScores((prev) => {
+          const key = data.winner.toLowerCase(); // 'x' or 'o'
+          return {
+            ...prev,
+            [key]: (prev[key] || 0) + 1,
+          };
+        });
+      }
+    };
+
+    const handleStartGame = () => {
+      // Reset game states for a new match
+      setBoard(Array(9).fill(""));
+      setCurrentTurn("X");
+      setGameStatus("playing");
+      setWinner(null);
+      setWinningCells(null);
+      setDraw(false);
+      setOpponentDisconnected(false);
+      setMoveHistory([]);
+    };
+
     const handleInvalidMove = (data) => {
       showToast(data.reason || "Invalid Move");
     };
@@ -114,11 +154,15 @@ export const GameProvider = ({ children }) => {
     };
 
     socket.on("board-updated", handleBoardUpdated);
+    socket.on("game-over", handleGameOver);
+    socket.on("start-game", handleStartGame);
     socket.on("invalid-move", handleInvalidMove);
     socket.on("player-left", handlePlayerLeft);
 
     return () => {
       socket.off("board-updated", handleBoardUpdated);
+      socket.off("game-over", handleGameOver);
+      socket.off("start-game", handleStartGame);
       socket.off("invalid-move", handleInvalidMove);
       socket.off("player-left", handlePlayerLeft);
     };
@@ -129,6 +173,8 @@ export const GameProvider = ({ children }) => {
     currentTurn,
     gameStatus,
     winner,
+    winningCells,
+    draw,
     opponentDisconnected,
     toastMessage,
     scores,

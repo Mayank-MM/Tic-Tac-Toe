@@ -165,6 +165,12 @@ const registerRoomHandlers = (io, socket) => {
       });
     }
 
+    if (room.status === "finished") {
+      return socket.emit("invalid-move", {
+        reason: "Game Finished",
+      });
+    }
+
     if (room.status !== "playing") {
       return socket.emit("invalid-move", {
         reason: "Game is not currently active.",
@@ -201,14 +207,66 @@ const registerRoomHandlers = (io, socket) => {
       });
     }
 
-    // Apply valid move and toggle turn
+    // Apply valid move
     room.board[index] = player.symbol;
+
+    // Check for a winner
+    const winResult = checkWinner(room.board);
+    if (winResult) {
+      room.status = "finished";
+      room.winner = winResult.winner;
+
+      // Broadcast game-over to everyone in the room
+      io.to(code).emit("game-over", {
+        winner: winResult.winner,
+        winningCells: winResult.winningCells,
+      });
+
+      // Still broadcast the final board-updated state so clients render the last move
+      io.to(code).emit("board-updated", {
+        board: room.board,
+        currentTurn: room.currentTurn,
+        gameStatus: room.status,
+        winner: room.winner,
+      });
+
+      console.log(`🏆 Game Over in room ${code}: ${winResult.winner} wins!`);
+      return;
+    }
+
+    // Check for a draw
+    const isDraw = checkDraw(room.board);
+    if (isDraw) {
+      room.status = "finished";
+      room.winner = null;
+
+      // Broadcast game-over to everyone in the room
+      io.to(code).emit("game-over", {
+        winner: null,
+        draw: true,
+      });
+
+      // Broadcast the final board-updated state
+      io.to(code).emit("board-updated", {
+        board: room.board,
+        currentTurn: room.currentTurn,
+        gameStatus: room.status,
+        winner: null,
+      });
+
+      console.log(`🤝 Game Over in room ${code}: It's a Draw!`);
+      return;
+    }
+
+    // Toggle turn if game is not finished
     room.currentTurn = room.currentTurn === "X" ? "O" : "X";
 
     // Broadcast board updates to all room players
     io.to(code).emit("board-updated", {
       board: room.board,
       currentTurn: room.currentTurn,
+      gameStatus: room.status,
+      winner: null,
     });
   });
 
@@ -254,6 +312,44 @@ const registerRoomHandlers = (io, socket) => {
 };
 
 // ─── HELPERS ────────────────────────────────────────────
+
+const WINNING_COMBINATIONS = [
+  [0, 1, 2], // Row 1
+  [3, 4, 5], // Row 2
+  [6, 7, 8], // Row 3
+  [0, 3, 6], // Col 1
+  [1, 4, 7], // Col 2
+  [2, 5, 8], // Col 3
+  [0, 4, 8], // Diagonal 1
+  [2, 4, 6]  // Diagonal 2
+];
+
+/**
+ * Checks if a player has won the game on the given board.
+ * @param {Array<string>} board - The 3x3 board array
+ * @returns {{winner: string, winningCells: Array<number>}|null} The winner and the winning combination, or null
+ */
+const checkWinner = (board) => {
+  for (const combination of WINNING_COMBINATIONS) {
+    const [a, b, c] = combination;
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      return {
+        winner: board[a],
+        winningCells: combination
+      };
+    }
+  }
+  return null;
+};
+
+/**
+ * Checks if the board state is a draw.
+ * @param {Array<string>} board - The 3x3 board array
+ * @returns {boolean} True if draw
+ */
+const checkDraw = (board) => {
+  return board.every((cell) => cell !== "");
+};
 
 /**
  * Finds a room that contains a player with the given socket ID.

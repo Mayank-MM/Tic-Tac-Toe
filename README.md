@@ -101,6 +101,13 @@ npm run dev
 - Immersive placement animation & toast error handling
 - Opponent disconnect handling & board locking
 
+✅ **Phase 6 — Winner Detection, Draw Logic, & Game Over Flow** (Complete)
+- Authoritative server-side win and draw calculation post-move
+- Dynamic red pencil stroke winning line animation spanning exactly 600ms
+- Soft-glow highlights and yellow highlighter sketch overlays on winning cells
+- Paper container shake animation upon reaching draw outcomes
+- Memo-pad styled Game Over modal showcasing scorecards and room exits
+
 ## License
 
 ISC
