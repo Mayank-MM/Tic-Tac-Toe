@@ -15,7 +15,9 @@ const PaperTransition = ({ onAnimationComplete }) => {
       clearTimeout(flatTimer);
       clearTimeout(completeTimer);
     };
-  }, [onAnimationComplete]);
+    // Only run sequence once on mount to prevent parent updates from interrupting transition
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Framer Motion variants for the overall container
   const containerVariants = {

@@ -32,6 +32,7 @@ export const GameProvider = ({ children }) => {
   const [winner, setWinner] = useState(null);
   const [winningCells, setWinningCells] = useState(null);
   const [draw, setDraw] = useState(false);
+  const [turnTimeLeft, setTurnTimeLeft] = useState(10);
 
   // Auto-hide toast message
   const showToast = useCallback((message) => {
@@ -143,6 +144,11 @@ export const GameProvider = ({ children }) => {
       setDraw(false);
       setOpponentDisconnected(false);
       setMoveHistory([]);
+      setTurnTimeLeft(10);
+    };
+
+    const handleTurnTimeUpdated = (data) => {
+      setTurnTimeLeft(data.timeLeft);
     };
 
     const handleInvalidMove = (data) => {
@@ -156,6 +162,7 @@ export const GameProvider = ({ children }) => {
     socket.on("board-updated", handleBoardUpdated);
     socket.on("game-over", handleGameOver);
     socket.on("start-game", handleStartGame);
+    socket.on("turn-time-updated", handleTurnTimeUpdated);
     socket.on("invalid-move", handleInvalidMove);
     socket.on("player-left", handlePlayerLeft);
 
@@ -163,6 +170,7 @@ export const GameProvider = ({ children }) => {
       socket.off("board-updated", handleBoardUpdated);
       socket.off("game-over", handleGameOver);
       socket.off("start-game", handleStartGame);
+      socket.off("turn-time-updated", handleTurnTimeUpdated);
       socket.off("invalid-move", handleInvalidMove);
       socket.off("player-left", handlePlayerLeft);
     };
@@ -175,6 +183,7 @@ export const GameProvider = ({ children }) => {
     winner,
     winningCells,
     draw,
+    turnTimeLeft,
     opponentDisconnected,
     toastMessage,
     scores,

@@ -108,6 +108,13 @@ npm run dev
 - Paper container shake animation upon reaching draw outcomes
 - Memo-pad styled Game Over modal showcasing scorecards and room exits
 
+✅ **Phase 7 — 10-Second Turn Timer** (Complete)
+- Server-authoritative 10-second turn timer tracking per active player
+- Turn passed to the other player on turn timeouts to prevent game stagnation
+- Visual Framer Motion linear progress bar matching the notebook theme
+- Pulsing red countdown indicator badge warning when time is low (<= 3s)
+- Automated interval clearings on moves, wins/draws, disconnects, and exits
+
 ## License
 
 ISC

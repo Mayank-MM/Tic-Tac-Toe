@@ -68,7 +68,7 @@ const GameOverModal = () => {
                   <button
                     disabled
                     className="w-full py-3 px-6 rounded-lg text-sm font-bold uppercase tracking-wider
-                               text-gray-400 bg-gray-150 border-2 border-dashed border-gray-300 cursor-not-allowed
+                               text-gray-400 bg-gray-100 border-2 border-dashed border-gray-300 cursor-not-allowed
                                transition-all duration-200 font-sans"
                   >
                     Play Again
@@ -81,7 +81,7 @@ const GameOverModal = () => {
                 <button
                   onClick={leaveRoom}
                   className="py-3 px-6 rounded-lg text-sm font-bold uppercase tracking-wider
-                             text-gray-850 bg-[#fcfaf2] border-2 border-gray-800 hover:bg-gray-100
+                             text-white bg-red-600 border-2 border-gray-800 hover:bg-red-700
                              active:scale-[0.98] transition-all duration-200 font-sans shadow-[2px_2px_0px_rgba(31,41,55,1)] hover:shadow-none"
                 >
                   Leave Room

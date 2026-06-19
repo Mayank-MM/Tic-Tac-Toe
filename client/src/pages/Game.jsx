@@ -3,7 +3,7 @@
 // Handles the paper transition and game board
 // ============================================
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRoom } from "../contexts/RoomContext";
@@ -26,6 +26,11 @@ const GameContent = () => {
   const navigate = useNavigate();
   const [showTransition, setShowTransition] = useState(true);
 
+  // Stabilize transition completion handler
+  const handleTransitionComplete = useCallback(() => {
+    setShowTransition(false);
+  }, []);
+
   // Redirect if not properly initialized
   useEffect(() => {
     if (!roomCode || !isRoomReady) {
@@ -39,15 +44,15 @@ const GameContent = () => {
     <RouteTransition>
       <div className="w-full max-w-[500px] px-4 py-8 relative z-10 flex flex-col items-center justify-center min-h-screen">
         {showTransition ? (
-          <PaperTransition onAnimationComplete={() => setShowTransition(false)} />
+          <PaperTransition onAnimationComplete={handleTransitionComplete} />
         ) : (
           <motion.div
             className="notebook-paper w-full rounded-xl shadow-2xl p-6 md:p-8 relative overflow-hidden text-gray-800"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={
               draw
-                ? { x: [-3, 3, -3, 3, 0], transition: { duration: 0.4 } }
-                : { opacity: 1, scale: 1 }
+                ? { x: [-3, 3, -3, 3, 0], opacity: 1, scale: 1, transition: { x: { duration: 0.4 } } }
+                : { opacity: 1, scale: 1, x: 0 }
             }
             transition={{ duration: 0.4 }}
             style={{
@@ -106,9 +111,9 @@ const GameContent = () => {
                 <button
                   onClick={leaveRoom}
                   className="py-2.5 px-8 rounded-xl text-xs font-bold tracking-widest uppercase
-                             text-red-500 hover:text-red-700
-                             border-2 border-red-200 hover:border-red-400
-                             bg-transparent hover:bg-red-50
+                             text-red-600 hover:text-red-700
+                             border-2 border-red-300 hover:border-red-500
+                             bg-red-50/40 hover:bg-red-50
                              active:scale-[0.98]
                              transition-all duration-200 font-sans"
                 >

@@ -149,6 +149,7 @@ const registerRoomHandlers = (io, socket) => {
           io.to(code).emit("start-game");
         }
         console.log(`🚀 Game started in room: ${code}`);
+        startTurnTimer(io, room);
       }
     }, 1000);
   });
@@ -210,6 +211,12 @@ const registerRoomHandlers = (io, socket) => {
     // Apply valid move
     room.board[index] = player.symbol;
 
+    // Clear active turn timer
+    if (room.turnInterval) {
+      clearInterval(room.turnInterval);
+      room.turnInterval = null;
+    }
+
     // Check for a winner
     const winResult = checkWinner(room.board);
     if (winResult) {
@@ -268,6 +275,9 @@ const registerRoomHandlers = (io, socket) => {
       gameStatus: room.status,
       winner: null,
     });
+
+    // Start turn timer for next player
+    startTurnTimer(io, room);
   });
 
 
@@ -285,6 +295,12 @@ const registerRoomHandlers = (io, socket) => {
     if (room.countdownInterval) {
       clearInterval(room.countdownInterval);
       room.countdownInterval = null;
+    }
+
+    // Cancel turn interval if it was running
+    if (room.turnInterval) {
+      clearInterval(room.turnInterval);
+      room.turnInterval = null;
     }
 
     if (room.players.length === 0) {
@@ -363,6 +379,62 @@ const findRoomBySocketId = (socketId) => {
     }
   }
   return null;
+};
+
+/**
+ * Starts/Resets the turn timer for the active room.
+ * @param {import("socket.io").Server} io - Socket.IO server instance
+ * @param {object} room - The room object
+ */
+const startTurnTimer = (io, room) => {
+  if (room.turnInterval) {
+    clearInterval(room.turnInterval);
+  }
+
+  room.turnTimeLeft = 10;
+
+  io.to(room.roomCode).emit("turn-time-updated", {
+    timeLeft: room.turnTimeLeft,
+    currentTurn: room.currentTurn,
+  });
+
+  room.turnInterval = setInterval(() => {
+    room.turnTimeLeft--;
+    if (room.turnTimeLeft <= 0) {
+      clearInterval(room.turnInterval);
+      room.turnInterval = null;
+      handleTurnTimeout(io, room);
+    } else {
+      io.to(room.roomCode).emit("turn-time-updated", {
+        timeLeft: room.turnTimeLeft,
+        currentTurn: room.currentTurn,
+      });
+    }
+  }, 1000);
+};
+
+/**
+ * Handles a turn timeout by passing the turn to the other player.
+ * @param {import("socket.io").Server} io - Socket.IO server instance
+ * @param {object} room - The room object
+ */
+const handleTurnTimeout = (io, room) => {
+  const code = room.roomCode;
+  const timeoutSymbol = room.currentTurn;
+
+  // Toggle turn without making any moves on the board
+  room.currentTurn = room.currentTurn === "X" ? "O" : "X";
+
+  console.log(`⏱️ Turn Timeout in room ${code}: ${timeoutSymbol} timed out. Turn passed to ${room.currentTurn}`);
+
+  io.to(code).emit("board-updated", {
+    board: room.board,
+    currentTurn: room.currentTurn,
+    gameStatus: room.status,
+    winner: null,
+  });
+
+  startTurnTimer(io, room);
 };
 
 export { rooms };
