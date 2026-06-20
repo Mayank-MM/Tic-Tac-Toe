@@ -281,6 +281,58 @@ const registerRoomHandlers = (io, socket) => {
   });
 
 
+  // ─── REQUEST REMATCH ────────────────────────────────
+  socket.on("request-rematch", ({ roomCode }) => {
+    const code = roomCode?.toString().trim().toUpperCase();
+    const room = rooms.get(code);
+
+    if (!room || room.status !== "finished") return;
+
+    const player = room.players.find((p) => p.socketId === socket.id);
+    if (!player) return;
+
+    // Initialize the rematch request set if it doesn't exist
+    if (!room.rematchRequests) {
+      room.rematchRequests = new Set();
+    }
+
+    room.rematchRequests.add(socket.id);
+
+    // Notify the room that a player wants a rematch
+    io.to(code).emit("rematch-requested", {
+      requestedBy: socket.id,
+      count: room.rematchRequests.size,
+    });
+
+    console.log(`🔄 Rematch requested in room ${code} by ${socket.id} (${room.rematchRequests.size}/2)`);
+
+    // If both players have requested, start a new game
+    if (room.rematchRequests.size === 2) {
+      room.rematchRequests = null;
+      room.board = Array(9).fill("");
+      room.currentTurn = "X";
+      room.status = "playing";
+      room.winner = null;
+
+      // Re-randomize symbols
+      const hostPlayer = room.players[0];
+      const guestPlayer = room.players[1];
+      if (hostPlayer && guestPlayer) {
+        const isHostX = Math.random() > 0.5;
+        hostPlayer.symbol = isHostX ? "X" : "O";
+        guestPlayer.symbol = isHostX ? "O" : "X";
+
+        io.to(hostPlayer.socketId).emit("start-game", { playerSymbol: hostPlayer.symbol });
+        io.to(guestPlayer.socketId).emit("start-game", { playerSymbol: guestPlayer.symbol });
+      } else {
+        io.to(code).emit("start-game");
+      }
+
+      console.log(`🚀 Rematch started in room: ${code}`);
+      startTurnTimer(io, room);
+    }
+  });
+
   // ─── DISCONNECT ─────────────────────────────────────
   socket.on("disconnect", () => {
     const room = findRoomBySocketId(socket.id);
@@ -301,6 +353,11 @@ const registerRoomHandlers = (io, socket) => {
     if (room.turnInterval) {
       clearInterval(room.turnInterval);
       room.turnInterval = null;
+    }
+
+    // Clear any pending rematch requests
+    if (room.rematchRequests) {
+      room.rematchRequests = null;
     }
 
     if (room.players.length === 0) {

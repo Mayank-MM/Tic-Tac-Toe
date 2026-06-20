@@ -115,6 +115,13 @@ npm run dev
 - Pulsing red countdown indicator badge warning when time is low (<= 3s)
 - Automated interval clearings on moves, wins/draws, disconnects, and exits
 
+✅ **Phase 8 — Multiplayer Rematch System** (Complete)
+- Both-player-accept rematch flow without leaving the room
+- Server tracks rematch requests via a Set; starts new round when both accept
+- Board reset, symbol re-randomization, and turn timer restart on rematch
+- "Play Again" button transitions to pulsing "Waiting for opponent…" indicator
+- Scores persist across rematches; rematch state clears on opponent disconnect
+
 ## License
 
 ISC

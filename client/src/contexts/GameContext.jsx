@@ -34,6 +34,10 @@ export const GameProvider = ({ children }) => {
   const [draw, setDraw] = useState(false);
   const [turnTimeLeft, setTurnTimeLeft] = useState(10);
 
+  // Rematch flow states
+  const [rematchRequested, setRematchRequested] = useState(false);
+  const [waitingForOpponent, setWaitingForOpponent] = useState(false);
+
   // Auto-hide toast message
   const showToast = useCallback((message) => {
     setToastMessage(message);
@@ -79,6 +83,14 @@ export const GameProvider = ({ children }) => {
       cellIndex: index,
     });
   }, [board, currentTurn, playerSymbol, roomCode, opponentDisconnected, gameStatus, showToast]);
+
+  // Request a rematch after game over
+  const requestRematch = useCallback(() => {
+    if (rematchRequested || gameStatus !== "finished") return;
+    setRematchRequested(true);
+    setWaitingForOpponent(true);
+    socket.emit("request-rematch", { roomCode });
+  }, [rematchRequested, gameStatus, roomCode]);
 
   // Set up socket event listeners
   useEffect(() => {
@@ -145,6 +157,8 @@ export const GameProvider = ({ children }) => {
       setOpponentDisconnected(false);
       setMoveHistory([]);
       setTurnTimeLeft(10);
+      setRematchRequested(false);
+      setWaitingForOpponent(false);
     };
 
     const handleTurnTimeUpdated = (data) => {
@@ -157,6 +171,13 @@ export const GameProvider = ({ children }) => {
 
     const handlePlayerLeft = () => {
       setOpponentDisconnected(true);
+      setRematchRequested(false);
+      setWaitingForOpponent(false);
+    };
+
+    const handleRematchRequested = () => {
+      // Server notified that someone requested a rematch.
+      // If local player already requested, keep waiting. Otherwise no-op on UI.
     };
 
     socket.on("board-updated", handleBoardUpdated);
@@ -165,6 +186,7 @@ export const GameProvider = ({ children }) => {
     socket.on("turn-time-updated", handleTurnTimeUpdated);
     socket.on("invalid-move", handleInvalidMove);
     socket.on("player-left", handlePlayerLeft);
+    socket.on("rematch-requested", handleRematchRequested);
 
     return () => {
       socket.off("board-updated", handleBoardUpdated);
@@ -173,6 +195,7 @@ export const GameProvider = ({ children }) => {
       socket.off("turn-time-updated", handleTurnTimeUpdated);
       socket.off("invalid-move", handleInvalidMove);
       socket.off("player-left", handlePlayerLeft);
+      socket.off("rematch-requested", handleRematchRequested);
     };
   }, [showToast]);
 
@@ -188,7 +211,10 @@ export const GameProvider = ({ children }) => {
     toastMessage,
     scores,
     moveHistory,
+    rematchRequested,
+    waitingForOpponent,
     makeMove,
+    requestRematch,
     clearToast,
     showToast,
     setScores,

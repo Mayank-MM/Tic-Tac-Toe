@@ -6,10 +6,18 @@ import DrawBanner from "./DrawBanner";
 
 /**
  * GameOverModal: Renders a hand-drawn memo pad dialog when the game ends.
- * Showcases match outcome, current scores, and controls to leave the room.
+ * Showcases match outcome, current scores, and rematch / leave controls.
  */
 const GameOverModal = () => {
-  const { gameStatus, draw, scores } = useGame();
+  const {
+    gameStatus,
+    draw,
+    scores,
+    opponentDisconnected,
+    rematchRequested,
+    waitingForOpponent,
+    requestRematch,
+  } = useGame();
   const { leaveRoom } = useRoom();
 
   const isFinished = gameStatus === "finished";
@@ -64,19 +72,34 @@ const GameOverModal = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3 mt-6">
-                <div className="relative group w-full">
+                {opponentDisconnected ? (
+                  /* Opponent left — no rematch possible */
+                  <div className="py-3 px-6 rounded-lg text-sm font-semibold text-gray-500 bg-gray-100 border-2 border-dashed border-gray-300 font-sans text-center">
+                    Opponent has left the room
+                  </div>
+                ) : waitingForOpponent ? (
+                  /* Local player requested — waiting for opponent */
+                  <motion.div
+                    animate={{ opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                    className="py-3 px-6 rounded-lg text-sm font-bold uppercase tracking-wider
+                               text-amber-700 bg-amber-50 border-2 border-dashed border-amber-400
+                               font-sans text-center cursor-default"
+                  >
+                    Waiting for opponent…
+                  </motion.div>
+                ) : (
+                  /* Default — Play Again button */
                   <button
-                    disabled
+                    onClick={requestRematch}
                     className="w-full py-3 px-6 rounded-lg text-sm font-bold uppercase tracking-wider
-                               text-gray-400 bg-gray-100 border-2 border-dashed border-gray-300 cursor-not-allowed
-                               transition-all duration-200 font-sans"
+                               text-emerald-700 bg-emerald-50 border-2 border-gray-800 hover:bg-emerald-100
+                               active:scale-[0.98] transition-all duration-200 font-sans
+                               shadow-[2px_2px_0px_rgba(31,41,55,1)] hover:shadow-none"
                   >
                     Play Again
                   </button>
-                  <span className="absolute -bottom-5 left-0 right-0 text-[10px] text-gray-500 font-semibold normal-case opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                    Rematch option coming soon!
-                  </span>
-                </div>
+                )}
                 
                 <button
                   onClick={leaveRoom}
